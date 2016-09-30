@@ -3,6 +3,7 @@
 const cli = require('heroku-cli-util');
 const co = require('co');
 const child = require('child_process');
+const log = require('../lib/log');
 
 module.exports = function(topic) {
   return {
@@ -26,6 +27,7 @@ function* login(context, heroku) {
   }
   catch (err) {
     cli.error(`Error: docker login exited with ${ err }`);
+    cli.hush(err.stack || err);
   }
 }
 
@@ -37,9 +39,7 @@ function dockerLogin(registry, password, verbose) {
       `--password=${ password }`,
       registry
     ];
-    if (verbose) {
-      console.log(['> docker'].concat(args).join(' '));
-    }
+    log(verbose, args);
     child.spawn('docker', args, { stdio: 'inherit' })
       .on('exit', (code, signal) => {
         if (signal || code) reject(signal || code);

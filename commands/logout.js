@@ -3,6 +3,7 @@
 const cli = require('heroku-cli-util');
 const co = require('co');
 const child = require('child_process');
+const log = require('../lib/log');
 
 module.exports = function(topic) {
   return {
@@ -34,9 +35,7 @@ function dockerLogout(registry, verbose) {
       'logout',
       registry
     ];
-    if (verbose) {
-      console.log(['> docker'].concat(args).join(' '));
-    }
+    log(verbose, args);
     child.spawn('docker', args, { stdio: 'inherit' })
       .on('exit', (code, signal) => {
         if (signal || code) reject(signal || code);
