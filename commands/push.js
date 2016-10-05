@@ -39,7 +39,7 @@ function* push(context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.log(`Building ${ job.name } (${ job.dockerfile })`);
+      cli.log(`\n=== Building ${ job.name } (${ job.dockerfile })`);
       yield buildImage(job.dockerfile, job.resource, context.flags.verbose);
     }
   }
@@ -50,9 +50,8 @@ function* push(context, heroku) {
   }
 
   try {
-    cli.log(`Pushing ${ jobs.length } images...`);
     for (let job of jobs) {
-      cli.log(`Pushing ${ job.name } (${ job.dockerfile })`);
+      cli.log(`\n=== Pushing ${ job.name } (${ job.dockerfile })`);
       yield pushImage(job.resource, context.flags.verbose);
     }
   }
@@ -136,9 +135,9 @@ function chooseJobs(jobs) {
           process.exit(1);
         }
       }
-      cli.warn(`Using nearest match for '${ group[0].name }' process type:`);
-      cli.warn(`${ ambiguous[0] } (used)`);
-      cli.warn(`${ ambiguous.slice(1).join('\n') }`);
+      cli.warn(`WARNING: Using nearest match for '${ group[0].name }' process type:`);
+      cli.warn(`WARNING: ${ ambiguous[0] } (used)`);
+      ambiguous.slice(1).forEach(file => cli.warn(`WARNING: ${ file } (ignored)`));
     }
     return group[0];
   });
