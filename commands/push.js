@@ -132,11 +132,11 @@ function chooseJobs(jobs) {
       let ambiguous = group.map(job => job.dockerfile);
       if (group[1].depth === group[0].depth) {
         if (group[1].postfix === group[0].postfix) {
-          cli.error(`Cannot build with ambiguous Dockerfiles:\n${ ambiguous.join('\n') }`);
+          cli.error(`Cannot build.  More than one Dockerfile defines the process type:\n${ ambiguous.join('\n') }`);
           process.exit(1);
         }
       }
-      cli.warn(`Using nearest match for the '${ group[0].name }' process:`);
+      cli.warn(`Using nearest match for '${ group[0].name }' process type:`);
       cli.warn(`${ ambiguous[0] } (used)`);
       cli.warn(`${ ambiguous.slice(1).join('\n') }`);
     }
