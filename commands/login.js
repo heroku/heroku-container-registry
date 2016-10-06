@@ -39,7 +39,7 @@ function dockerLogin(registry, password, verbose) {
         `--password=${ password }`,
         registry
       ];
-      if (semver.lte(version, "1.10.0")) {
+      if (semver.lt(version, "1.11.0")) {
         args.splice(1, 0, '--email=_')
       }
       if (verbose) {
