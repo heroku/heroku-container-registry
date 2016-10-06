@@ -59,17 +59,23 @@ function dockerVersion() {
     let args = [
       'version',
       '--format',
-      "'{{.Server.Version}}'"
+      "{{.Server.Version}}"
     ];
 
     const version = child.spawn('docker', args, {})
-    version.stdout.on('data', (data) => {
-      if (data) {
-        resolve(data.toString().slice(1, -1));
-      } else {
-        reject(new Error("Not output"));
-      }
-    });
+    var stdout_string = "";
+    version.stdout
+      .on('data', (data) => {
+        stdout_string += data.toString();
+      })
+      .on('end', () => {
+        const version = stdout_string.replace(/\r?\n/g,"");
+        if (semver.valid(version)) {
+          resolve(version);
+        } else {
+          reject(new Error("Invalid Version String: " + version));
+        }
+      });
     version.on('exit', (code, signal) => {
       if (signal || code) reject(signal || code);
     });
