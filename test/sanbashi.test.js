@@ -14,7 +14,12 @@ describe('Sanbashi', () => {
     it('can recurse the directory', () => {
       const searchpath = Path.join(process.cwd(), './test/fixtures')
       let results = Sanbashi.getDockerfiles(searchpath, true)
-      expect(results).to.have.members([`${searchpath}/Dockerfile.web`, `${searchpath}/Nested/Dockerfile`])
+      expect(results).to.have.members([`${searchpath}/Dockerfile.web`, `${searchpath}/Nested/Dockerfile.web`])
+    })
+    it('when recursing, rejects dockerfiles that have no postfix in the name', () => {
+      const searchpath = Path.join(process.cwd(), './test/fixtures')
+      let results = Sanbashi.getDockerfiles(searchpath, true)
+      expect(results).to.not.have.members([`${searchpath}/Dockerfile`])
     })
   })
   describe('.getJobs', () => {

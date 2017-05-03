@@ -27,9 +27,14 @@ module.exports = function (topic) {
 }
 
 function* push (context, heroku) {
+  const recurse = !!context.flags.recursive
+  if(context.args.length === 0 && !recurse){
+    cli.error('Error: Requires either --recursive or one or more process types')
+    process.exit(1)
+  }
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'
   let registry = `registry.${ herokuHost }`
-  let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), true)
+  let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, context.args, dockerfiles)
   let jobs = yield Sanbashi.chooseJobs(possibleJobs)
   if (!jobs.length) {
