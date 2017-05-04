@@ -24,7 +24,10 @@ describe('Sanbashi', () => {
   })
   describe('.getJobs', () => {
     it('returns objects representing jobs per Dockerfile', () => {
-      const dockerfiles = ['./Dockerfile.web', './Nested/Dockerfile.web']
+      const dockerfiles = [
+        Path.join('.', 'Dockerfile.web'),
+        Path.join('.', 'Nested', 'Dockerfile.web')
+      ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, ['web'], dockerfiles)
       expect(results.web).to.have.property('length', 2)
@@ -32,7 +35,10 @@ describe('Sanbashi', () => {
       expect(results.web[1]).to.have.property('depth', 2, 'dockerfile', './Nested/Dockerfile.web', 'postfix', 1)
     })
     it('filters out by process type', () => {
-      const dockerfiles = ['./Dockerfile.web', './Nested/Dockerfile.worker']
+      const dockerfiles = [
+        Path.join('.', 'Dockerfile.web'),
+        Path.join('.', 'Nested', 'Dockerfile.worker')
+      ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, ['web'], dockerfiles)
       expect(results.web).to.have.property('length', 1)
@@ -40,35 +46,47 @@ describe('Sanbashi', () => {
       expect(results).to.not.have.property('worker')
     })
     it('sorts dockerfiles by directory depth, then proc type', () => {
-      const dockerfiles = ['./Nested/Dockerfile.worker', './Dockerfile.web', './Nested/Dockerfile']
+      const dockerfiles = [
+        Path.join('.', 'Nested', 'Dockerfile.worker'),
+        Path.join('.', 'Dockerfile.web'),
+        Path.join('.', 'Nested', 'Dockerfile')
+      ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, [], dockerfiles)
       expect(results.web).to.have.property('length', 2)
-      expect(results.web[0]).to.have.property('dockerfile', './Dockerfile.web')
-      expect(results.web[1]).to.have.property('dockerfile', './Nested/Dockerfile')
-      expect(results.worker[0]).to.have.property('dockerfile', './Nested/Dockerfile.worker')
+      expect(results.web[0]).to.have.property('dockerfile', 'Dockerfile.web')
+      expect(results.web[1]).to.have.property('dockerfile', 'Nested/Dockerfile')
+      expect(results.worker[0]).to.have.property('dockerfile', 'Nested/Dockerfile.worker')
     })
     it('groups the jobs by process type', () => {
-      const dockerfiles = ['./Nested/Dockerfile.worker', './Dockerfile.web', './Nested/Dockerfile']
+      const dockerfiles = [
+        Path.join('.', 'Nested', 'Dockerfile.worker'),
+        Path.join('.', 'Dockerfile.web'),
+        Path.join('.', 'Nested', 'Dockerfile')
+      ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, [], dockerfiles)
       expect(results).to.have.keys('worker', 'web')
-      expect(results['worker'].map(j => j.dockerfile)).to.have.members(['./Nested/Dockerfile.worker'])
-      expect(results['web'].map(j => j.dockerfile)).to.have.members(['./Dockerfile.web', './Nested/Dockerfile'])
+      expect(results['worker'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Nested', 'Dockerfile.worker')])
+      expect(results['web'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile')])
     })
   })
   describe('.chooseJobs', () => {
-    it('returns the entry when ony one exist', () => {
-      const dockerfiles = ['./Nested/Dockerfile.web']
+    it('returns the entry when only one exists', async () => {
+      const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web')]
       const jobs = Sanbashi.getJobs('rootfulroot', [], dockerfiles)
-      let chosenJob = Sanbashi.chooseJobs(jobs)
+      let chosenJob = await Sanbashi.chooseJobs(jobs)
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
-      expect(chosenJob).to.have.property('length',1)
+      expect(chosenJob).to.have.property('length', 1)
     })
     it.skip('queries the user when more than one job of a type exists', () => {
       //really no way to simulate user input for Inquirer
       Sinon.stub(Inquirer, 'prompt').resolves('something')
-      const dockerfiles = ['./Nested/Dockerfile.web', './OtherNested/Dockerfile.web','./AnotherNested/Dockerfile.web', './Dockerfile.web']
+      const dockerfiles = [
+        Path.join('.', 'Nested', 'Dockerfile.web'),
+        Path.join('.', 'OtherNested', 'Dockerfile.web'),
+        Path.join('.', 'AnotherNested', 'Dockerfile.web', './Dockerfile.web')
+      ]
       let jobs = Sanbashi.getJobs('rootfulroot', ['web'], dockerfiles)
       let res = Sanbashi.chooseJobs(jobs)
       //   .then((chosen) => {
@@ -80,7 +98,7 @@ describe('Sanbashi', () => {
       console.dir(res)
     })
     afterEach(() => {
-      if(Inquirer.prompt.restore)
+      if (Inquirer.prompt.restore)
         Inquirer.prompt.restore()
     })
   })

@@ -1,15 +1,23 @@
 const cli = require('heroku-cli-util')
-const co = require('co')
-let Sanbashi = require('../lib/sanbashi')
+const Sanbashi = require('../lib/sanbashi')
+const Chalk = require('chalk')
 
+let usage = `
+		${Chalk.bold.underline.magenta('Usage:')}
+			${ Chalk.white('  heroku container:push web')}         	           # Pushes Dockerfile in current directory
+			${ Chalk.white('  heroku container:push web worker')}     	        # Pushes Dockerfile.web and Dockerfile.worker found in the current directory
+			${ Chalk.white('  heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in the current directory or subdirectories
+			${ Chalk.white('  heroku container:push --recursive')}                # Pushes Dockerfile.* found in current directory or subdirectories`
+     
 module.exports = function (topic) {
   return {
     topic: topic,
     command: 'push',
-    description: 'Builds, then pushes a Docker image to deploy your Heroku app',
+    description: 'builds, then pushes Docker images to deploy your Heroku app',
     needsApp: true,
     needsAuth: true,
     variableArgs: true,
+    help: usage,
     flags: [
       {
         name: 'verbose',
@@ -22,30 +30,30 @@ module.exports = function (topic) {
         hasValue: false
       }
     ],
-    run: cli.command(co.wrap(push))
+    run: cli.command(push)
   }
 }
 
-function* push (context, heroku) {
+let push = async function (context, heroku) {
   const recurse = !!context.flags.recursive
-  if(context.args.length === 0 && !recurse){
-    cli.error('Error: Requires either --recursive or one or more process types')
+  if (context.args.length === 0 && !recurse) {
+    cli.error( `Error: Requires either --recursive or one or more process types\n ${usage} `)
     process.exit(1)
   }
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, context.args, dockerfiles)
-  let jobs = yield Sanbashi.chooseJobs(possibleJobs)
+  let jobs = await Sanbashi.chooseJobs(possibleJobs)
   if (!jobs.length) {
     cli.warn('No images to push')
-    process.exit()
+    process.exit(1)
   }
 
   try {
     for (let job of jobs) {
-      cli.log(`\n=== Building ${ job.name } (${ job.dockerfile })`)
-      yield Sanbashi.buildImage(job.dockerfile, job.resource, context.flags.verbose)
+      cli.log(Chalk.bold.white.bgMagenta(`\n=== Building ${job.name} (${job.dockerfile})`))
+      await Sanbashi.buildImage(job.dockerfile, job.resource, context.flags.verbose)
     }
   }
   catch (err) {
@@ -56,8 +64,8 @@ function* push (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.log(`\n=== Pushing ${ job.name } (${ job.dockerfile })`)
-      yield Sanbashi.pushImage(job.resource, context.flags.verbose)
+      cli.log(Chalk.bold.white.bgMagenta(`\n=== Pushing  ${job.name}  (${job.dockerfile })`))
+      await Sanbashi.pushImage(job.resource, context.flags.verbose)
     }
   }
   catch (err) {

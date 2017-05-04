@@ -1,7 +1,4 @@
-'use strict';
-
 const cli = require('heroku-cli-util');
-const co = require('co');
 const child = require('child_process');
 const log = require('../lib/log');
 
@@ -10,19 +7,21 @@ module.exports = function(topic) {
     topic: topic,
     command: 'logout',
     flags: [{ name: 'verbose', char: 'v', hasValue: false }],
-    description: 'Logs out from the Heroku Docker registry',
+    description: 'logs out from the Heroku Docker registry',
+    help: `Usage:
+       heroku container:logout`,
     needsApp: false,
     needsAuth: false,
-    run: cli.command(co.wrap(logout))
+    run: cli.command(logout)
   };
 };
 
-function* logout(context, heroku) {
+async function logout(context, heroku) {
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com';
   let registry = `registry.${ herokuHost }`;
 
   try {
-    let user = yield dockerLogout(registry, context.flags.verbose);
+    let user = await dockerLogout(registry, context.flags.verbose);
   }
   catch (err) {
     cli.error(`Error: docker logout exited with ${ err }`);

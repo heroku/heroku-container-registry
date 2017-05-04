@@ -2,7 +2,6 @@ module.exports = function index(pkg) {
   return {
     topic: pkg.topic,
     description: pkg.description,
-    help: pkg.description,
     run: showVersion
   };
 
