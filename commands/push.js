@@ -1,13 +1,12 @@
 const cli = require('heroku-cli-util')
 const Sanbashi = require('../lib/sanbashi')
-const Chalk = require('chalk')
 
 let usage = `
-		${Chalk.bold.underline.magenta('Usage:')}
-			${ Chalk.white('  heroku container:push web')}         	           # Pushes Dockerfile in current directory
-			${ Chalk.white('  heroku container:push web worker')}     	        # Pushes Dockerfile.web and Dockerfile.worker found in the current directory
-			${ Chalk.white('  heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in the current directory or subdirectories
-			${ Chalk.white('  heroku container:push --recursive')}                # Pushes Dockerfile.* found in current directory or subdirectories`
+  ${cli.color.bold.underline.magenta('Usage:')}
+  ${ cli.color.white('heroku container:push web')}         	           # Pushes Dockerfile in current directory
+  ${ cli.color.white('heroku container:push web worker')}     	           # Pushes Dockerfile.web and Dockerfile.worker found in the current directory
+  ${ cli.color.white('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in the current directory or subdirectories
+  ${ cli.color.white('heroku container:push --recursive')}                # Pushes Dockerfile.* found in current directory or subdirectories`
      
 module.exports = function (topic) {
   return {
@@ -52,7 +51,7 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.log(Chalk.bold.white.bgMagenta(`\n=== Building ${job.name} (${job.dockerfile})`))
+      cli.log(cli.color.bold.white.bgMagenta(`\n=== Building ${job.name} (${job.dockerfile})`))
       await Sanbashi.buildImage(job.dockerfile, job.resource, context.flags.verbose)
     }
   }
@@ -64,7 +63,7 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.log(Chalk.bold.white.bgMagenta(`\n=== Pushing  ${job.name}  (${job.dockerfile })`))
+      cli.log(cli.color.bold.white.bgMagenta(`\n=== Pushing  ${job.name}  (${job.dockerfile })`))
       await Sanbashi.pushImage(job.resource, context.flags.verbose)
     }
   }
