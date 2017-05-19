@@ -7,7 +7,7 @@ let usage = `
   ${ cli.color.white('heroku container:push web worker')}     	           # Pushes Dockerfile.web and Dockerfile.worker found in the current directory
   ${ cli.color.white('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in the current directory or subdirectories
   ${ cli.color.white('heroku container:push --recursive')}                # Pushes Dockerfile.* found in current directory or subdirectories`
-     
+
 module.exports = function (topic) {
   return {
     topic: topic,
@@ -36,7 +36,7 @@ module.exports = function (topic) {
 let push = async function (context, heroku) {
   const recurse = !!context.flags.recursive
   if (context.args.length === 0 && !recurse) {
-    cli.error( `Error: Requires either --recursive or one or more process types\n ${usage} `)
+    cli.error(`Error: Requires either --recursive or one or more process types\n ${usage} `)
     process.exit(1)
   }
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'

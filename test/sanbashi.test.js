@@ -34,10 +34,11 @@ describe('Sanbashi', () => {
       expect(results.web[0]).to.have.property('depth', 1, 'dockerfile', './Dockerfile.web', 'postfix', 1)
       expect(results.web[1]).to.have.property('depth', 2, 'dockerfile', './Nested/Dockerfile.web', 'postfix', 1)
     })
-    it('filters out by process type', () => {
+    it.only('filters out by process type', () => {
       const dockerfiles = [
         Path.join('.', 'Dockerfile.web'),
-        Path.join('.', 'Nested', 'Dockerfile.worker')
+        Path.join('.', 'Nested', 'Dockerfile.worker'),
+        Path.join('.', 'Dockerfile')
       ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, ['web'], dockerfiles)
