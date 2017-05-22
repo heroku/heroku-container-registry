@@ -4,7 +4,6 @@ const Sanbashi = require('../lib/sanbashi')
 let usage = `
   ${cli.color.bold.underline.magenta('Usage:')}
   ${ cli.color.white('heroku container:push web')}         	           # Pushes Dockerfile in current directory
-  ${ cli.color.white('heroku container:push web worker')}     	           # Pushes Dockerfile.web and Dockerfile.worker found in the current directory
   ${ cli.color.white('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in the current directory or subdirectories
   ${ cli.color.white('heroku container:push --recursive')}                # Pushes Dockerfile.* found in current directory or subdirectories`
 
@@ -39,10 +38,18 @@ let push = async function (context, heroku) {
     cli.error(`Error: Requires either --recursive or one or more process types\n ${usage} `)
     process.exit(1)
   }
+  if(context.args.length > 1 && !recurse){
+    cli.error(`Error: Please specify one target process type\n ${usage} `)
+    process.exit(1)
+  }
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
-  let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, context.args, dockerfiles)
+  let processTypes = ['standard']
+  if(recurse){
+    processTypes = context.args
+  }
+  let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, processTypes, dockerfiles)
   let jobs = await Sanbashi.chooseJobs(possibleJobs)
   if (!jobs.length) {
     cli.warn('No images to push')
