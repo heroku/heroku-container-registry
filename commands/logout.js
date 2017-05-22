@@ -7,7 +7,7 @@ module.exports = function(topic) {
     topic: topic,
     command: 'logout',
     flags: [{ name: 'verbose', char: 'v', hasValue: false }],
-    description: 'logs out from the Heroku Docker registry',
+    description: 'logs out from the Heroku Container Registry',
     help: `Usage:
        heroku container:logout`,
     needsApp: false,
