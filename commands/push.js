@@ -58,7 +58,7 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.log(cli.color.bold.white.bgMagenta(`\n=== Building ${job.name} (${job.dockerfile})`))
+      cli.styledHeader(`Building ${job.name} (${job.dockerfile})`)
       await Sanbashi.buildImage(job.dockerfile, job.resource, context.flags.verbose)
     }
   }
@@ -70,7 +70,7 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.log(cli.color.bold.white.bgMagenta(`\n=== Pushing  ${job.name}  (${job.dockerfile })`))
+     cli.styledHeader(`Pushing  ${job.name}  (${job.dockerfile })`)
       await Sanbashi.pushImage(job.resource, context.flags.verbose)
     }
   }
