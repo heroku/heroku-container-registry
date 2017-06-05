@@ -2,10 +2,10 @@ const cli = require('heroku-cli-util')
 const Sanbashi = require('../lib/sanbashi')
 
 let usage = `
-  ${cli.color.bold.underline.magenta('Usage:')}
-  ${ cli.color.white('heroku container:push web')}         	           # Pushes Dockerfile in current directory to web process type
-  ${ cli.color.white('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in current & subdirectories
-  ${ cli.color.white('heroku container:push --recursive')}                # Pushes Dockerfile.* found in current & subdirectories`
+    ${cli.color.bold.underline.magenta('Usage:')}
+    ${ cli.color.cmd('heroku container:push web')}         	           # Pushes Dockerfile in current directory to web process type
+    ${ cli.color.cmd('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in current & subdirectories
+    ${ cli.color.cmd('heroku container:push --recursive')}                # Pushes Dockerfile.* found in current & subdirectories`
 
 module.exports = function (topic) {
   return {
@@ -33,12 +33,13 @@ module.exports = function (topic) {
 }
 
 let push = async function (context, heroku) {
+  console.dir(context.args, {colors: true, depth: null})
   const recurse = !!context.flags.recursive
   if (context.args.length === 0 && !recurse) {
     cli.error(`Error: Requires either --recursive or one or more process types\n ${usage} `)
     process.exit(1)
   }
-  if(context.args.length > 1 && !recurse){
+  if (context.args.length > 1 && !recurse) {
     cli.error(`Error: Please specify one target process type\n ${usage} `)
     process.exit(1)
   }
@@ -46,7 +47,7 @@ let push = async function (context, heroku) {
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
   let processTypes = ['standard']
-  if(recurse){
+  if (recurse || (!recurse && context.args.length)) {
     processTypes = context.args
   }
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, processTypes, dockerfiles)
@@ -70,7 +71,7 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-     cli.styledHeader(`Pushing  ${job.name}  (${job.dockerfile })`)
+      cli.styledHeader(`Pushing  ${job.name}  (${job.dockerfile })`)
       await Sanbashi.pushImage(job.resource, context.flags.verbose)
     }
   }

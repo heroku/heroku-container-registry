@@ -27,6 +27,7 @@ async function login (context, heroku) {
   catch (err) {
     cli.error(`Error: docker login exited with ${ err }`)
     cli.hush(err.stack || err)
+    cli.exit(1)
   }
 }
 

@@ -53,10 +53,10 @@ describe('Sanbashi', () => {
         Path.join('.', 'Nested', 'Dockerfile')
       ]
       const resourceRoot = 'rootfulroot'
-      const results = Sanbashi.getJobs(resourceRoot, ['web','standard','worker'], dockerfiles)
+      const results = Sanbashi.getJobs(resourceRoot, ['web', 'standard', 'worker'], dockerfiles)
       expect(results.web).to.have.property('length', 1)
       expect(results.web[0]).to.have.property('dockerfile', 'Dockerfile.web')
-			expect(results.standard[0]).to.have.property('dockerfile', 'Nested/Dockerfile')
+      expect(results.standard[0]).to.have.property('dockerfile', 'Nested/Dockerfile')
       expect(results.worker[0]).to.have.property('dockerfile', 'Nested/Dockerfile.worker')
     })
     it('groups the jobs by process type', () => {
