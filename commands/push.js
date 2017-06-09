@@ -45,17 +45,20 @@ let push = async function (context, heroku) {
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
-  let processTypes = ['standard']
-  if (recurse) {
-    processTypes = context.args
+
+  let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles)
+  let jobs
+  if(recurse){
+    possibleJobs = Sanbashi.filterByProcessType(possibleJobs, context.args)
+    jobs = await Sanbashi.chooseJobs(possibleJobs)
+  }else{
+    possibleJobs.standard.forEach((pj) => { pj.resource = pj.resource.replace(/standard$/, context.args[0])})
+    jobs = possibleJobs.standard || []
   }
-  let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, processTypes, dockerfiles)
-  let jobs = await Sanbashi.chooseJobs(possibleJobs)
   if (!jobs.length) {
     cli.warn('No images to push')
     process.exit(1)
   }
-
   try {
     for (let job of jobs) {
       if(job.name === 'standard'){
