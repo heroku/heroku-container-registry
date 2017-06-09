@@ -33,7 +33,6 @@ module.exports = function (topic) {
 }
 
 let push = async function (context, heroku) {
-  console.dir(context.args, {colors: true, depth: null})
   const recurse = !!context.flags.recursive
   if (context.args.length === 0 && !recurse) {
     cli.error(`Error: Requires either --recursive or one or more process types\n ${usage} `)
@@ -47,7 +46,7 @@ let push = async function (context, heroku) {
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
   let processTypes = ['standard']
-  if (recurse || (!recurse && context.args.length)) {
+  if (recurse) {
     processTypes = context.args
   }
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, processTypes, dockerfiles)
@@ -59,7 +58,11 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.styledHeader(`Building ${job.name} (${job.dockerfile})`)
+      if(job.name === 'standard'){
+        cli.styledHeader(`Building for ${context.args}  (${job.dockerfile })`)
+      }else{
+        cli.styledHeader(`Building ${job.name} (${job.dockerfile})`)
+      }
       await Sanbashi.buildImage(job.dockerfile, job.resource, context.flags.verbose)
     }
   }
@@ -71,7 +74,11 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      cli.styledHeader(`Pushing  ${job.name}  (${job.dockerfile })`)
+      if(job.name === 'standard'){
+        cli.styledHeader(`Pushing for ${context.args}  (${job.dockerfile })`)
+      }else{
+        cli.styledHeader(`Pushing  ${job.name}  (${job.dockerfile })`)
+      }
       await Sanbashi.pushImage(job.resource, context.flags.verbose)
     }
   }

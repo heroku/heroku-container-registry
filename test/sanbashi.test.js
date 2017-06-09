@@ -6,11 +6,6 @@ let Inquirer = require('inquirer')
 
 describe('Sanbashi', () => {
   describe('.getDockerfiles', () => {
-    it('can find in just the given directory', () => {
-      const searchpath = Path.join(process.cwd(), './test/fixtures')
-      let results = Sanbashi.getDockerfiles(searchpath, false)
-      expect(results).to.have.members([`${searchpath}/Dockerfile.web`])
-    })
     it('can recurse the directory', () => {
       const searchpath = Path.join(process.cwd(), './test/fixtures')
       let results = Sanbashi.getDockerfiles(searchpath, true)
@@ -20,6 +15,11 @@ describe('Sanbashi', () => {
       const searchpath = Path.join(process.cwd(), './test/fixtures')
       let results = Sanbashi.getDockerfiles(searchpath, true)
       expect(results).to.not.have.members([`${searchpath}/Dockerfile`])
+    })
+    it('returns only regular Dockerfiles when not recursing', () => {
+      const searchpath = Path.join(process.cwd(), './test/fixtures/Nested')
+      let results = Sanbashi.getDockerfiles(searchpath, false)
+      expect(results).to.have.members([`${searchpath}/Dockerfile`])
     })
   })
   describe('.getJobs', () => {
@@ -66,10 +66,11 @@ describe('Sanbashi', () => {
         Path.join('.', 'Nested', 'Dockerfile')
       ]
       const resourceRoot = 'rootfulroot'
-      const results = Sanbashi.getJobs(resourceRoot, ['web', 'worker'], dockerfiles)
-      expect(results).to.have.keys('worker', 'web')
+      const results = Sanbashi.getJobs(resourceRoot, ['web', 'worker', 'standard'], dockerfiles)
+      expect(results).to.have.keys('worker', 'web', 'standard')
       expect(results['worker'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Nested', 'Dockerfile.worker')])
       expect(results['web'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Dockerfile.web')])
+      expect(results['standard'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Nested', 'Dockerfile')])
     })
   })
   describe('.chooseJobs', () => {
@@ -79,24 +80,6 @@ describe('Sanbashi', () => {
       let chosenJob = await Sanbashi.chooseJobs(jobs)
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
       expect(chosenJob).to.have.property('length', 1)
-    })
-    it.skip('queries the user when more than one job of a type exists', () => {
-      //really no way to simulate user input for Inquirer
-      Sinon.stub(Inquirer, 'prompt').resolves('something')
-      const dockerfiles = [
-        Path.join('.', 'Nested', 'Dockerfile.web'),
-        Path.join('.', 'OtherNested', 'Dockerfile.web'),
-        Path.join('.', 'AnotherNested', 'Dockerfile.web', './Dockerfile.web')
-      ]
-      let jobs = Sanbashi.getJobs('rootfulroot', ['web'], dockerfiles)
-      let res = Sanbashi.chooseJobs(jobs)
-      //   .then((chosen) => {
-      //     console.dir(chosen, {
-      //       colors: true,
-      //       depth: null
-      //     })
-      // })
-      console.dir(res)
     })
     afterEach(() => {
       if (Inquirer.prompt.restore)
