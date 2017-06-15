@@ -47,13 +47,13 @@ let push = async function (context, heroku) {
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
 
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles)
-  let jobs
+  let jobs = []
   if(recurse){
     if(context.args.length){
       possibleJobs = Sanbashi.filterByProcessType(possibleJobs, context.args)
     }
     jobs = await Sanbashi.chooseJobs(possibleJobs)
-  }else{
+  }else if(possibleJobs.standard){
     possibleJobs.standard.forEach((pj) => { pj.resource = pj.resource.replace(/standard$/, context.args[0])})
     jobs = possibleJobs.standard || []
   }
