@@ -3,9 +3,9 @@ const Sanbashi = require('../lib/sanbashi')
 
 let usage = `
     ${cli.color.bold.underline.magenta('Usage:')}
-    ${ cli.color.cmd('heroku container:push web')}         	           # Pushes Dockerfile in current directory to web process type
-    ${ cli.color.cmd('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker found in current & subdirectories
-    ${ cli.color.cmd('heroku container:push --recursive')}                # Pushes Dockerfile.* found in current & subdirectories`
+    ${ cli.color.cmd('heroku container:push web')}         	              # Pushes Dockerfile to web process type
+    ${ cli.color.cmd('heroku container:push web worker --recursive')}     # Pushes Dockerfile.web and Dockerfile.worker
+    ${ cli.color.cmd('heroku container:push --recursive')}                # Pushes Dockerfile.*`
 
 module.exports = function (topic) {
   return {
@@ -25,7 +25,8 @@ module.exports = function (topic) {
       {
         name: 'recursive',
         char: 'R',
-        hasValue: false
+        hasValue: false,
+        description: 'pushes Dockerfile.<process> found in current and subdirectories'
       }
     ],
     run: cli.command(push)
