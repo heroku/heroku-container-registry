@@ -49,12 +49,12 @@ let push = async function (context, heroku) {
 
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles)
   let jobs = []
-  if(recurse){
-    if(context.args.length){
+  if (recurse) {
+    if (context.args.length) {
       possibleJobs = Sanbashi.filterByProcessType(possibleJobs, context.args)
     }
     jobs = await Sanbashi.chooseJobs(possibleJobs)
-  }else if(possibleJobs.standard){
+  } else if (possibleJobs.standard) {
     possibleJobs.standard.forEach((pj) => { pj.resource = pj.resource.replace(/standard$/, context.args[0])})
     jobs = possibleJobs.standard || []
   }
@@ -64,9 +64,9 @@ let push = async function (context, heroku) {
   }
   try {
     for (let job of jobs) {
-      if(job.name === 'standard'){
+      if (job.name === 'standard') {
         cli.styledHeader(`Building for ${context.args}  (${job.dockerfile })`)
-      }else{
+      } else {
         cli.styledHeader(`Building ${job.name} (${job.dockerfile})`)
       }
       await Sanbashi.buildImage(job.dockerfile, job.resource, context.flags.verbose)
@@ -80,9 +80,9 @@ let push = async function (context, heroku) {
 
   try {
     for (let job of jobs) {
-      if(job.name === 'standard'){
+      if (job.name === 'standard') {
         cli.styledHeader(`Pushing for ${context.args}  (${job.dockerfile })`)
-      }else{
+      } else {
         cli.styledHeader(`Pushing  ${job.name}  (${job.dockerfile })`)
       }
       await Sanbashi.pushImage(job.resource, context.flags.verbose)

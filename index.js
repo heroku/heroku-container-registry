@@ -3,7 +3,8 @@ var pkg = require('./package.json')
 module.exports = {
   topic: {
     description: 'Use containers to build and deploy Heroku apps',
-    name: 'container'
+    name: 'container',
+    help: pkg.description
   },
   commands: [
     require('./commands/index')(pkg),

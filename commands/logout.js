@@ -1,5 +1,4 @@
 const cli = require('heroku-cli-util')
-const child = require('child_process')
 const log = require('../lib/log')
 
 module.exports = function (topic) {
@@ -27,16 +26,10 @@ async function logout (context, heroku) {
 }
 
 function dockerLogout (registry, verbose) {
-  return new Promise((resolve, reject) => {
-    let args = [
-      'logout',
-      registry
-    ]
-    log(verbose, args)
-    child.spawn('docker', args, {stdio: 'inherit'})
-      .on('exit', (code, signal) => {
-        if (signal || code) reject(signal || code)
-        else resolve()
-      })
-  })
+  let args = [
+    'logout',
+    registry
+  ]
+  log(verbose, args)
+  return Sanbashi.cmd('docker', args)
 }
