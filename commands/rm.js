@@ -9,7 +9,7 @@ module.exports = function (topic) {
   return {
     topic: topic,
     command: 'rm',
-    description: 'destroys the named process type containers',
+    description: 'remove the process type from your app',
     needsApp: true,
     needsAuth: true,
     variableArgs: true,
@@ -21,7 +21,7 @@ module.exports = function (topic) {
 
 let rm = async function (context, heroku) {
   if (context.args.length === 0) {
-    cli.error(`Error: Please specify at least one target process type\n ${usage} `)
+    kli.error(`Error: Please specify at least one target process type\n ${usage} `)
     process.exit(1)
   }
   let container = context.args[0]
