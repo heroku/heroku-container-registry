@@ -6,7 +6,7 @@ let usage = `
     ${ cli.color.cmd('heroku container:push web')}                          # Pushes Dockerfile to web process type
     ${ cli.color.cmd('heroku container:push web worker --recursive')}       # Pushes Dockerfile.web and Dockerfile.worker
     ${ cli.color.cmd('heroku container:push --recursive')}                  # Pushes Dockerfile.*
-    ${ cli.color.cmd('heroku container:push web --arg ENV=live,HTTPS=on')}  # Build-time variables`
+    ${ cli.color.cmd('heroku container:push web --build-arg ENV=live,HTTPS=on')}  # Build-time variables`
 
 module.exports = function (topic) {
   return {
@@ -30,7 +30,7 @@ module.exports = function (topic) {
         description: 'pushes Dockerfile.<process> found in current and subdirectories'
       },
       {
-        name: 'arg',
+        name: 'build-arg',
         hasValue: true,
         description: 'set build-time variables'
       }
@@ -69,8 +69,8 @@ let push = async function (context, heroku) {
     process.exit(1)
   }
 
-  let flagsArg = context.flags.arg;
-  let buildArg = (flagsArg !== undefined) ? flagsArg.split(',') : []
+  let flagsBuildArg = context.flags['build-arg'];
+  let buildArg = (flagsBuildArg !== undefined) ? flagsBuildArg.split(',') : []
 
   try {
     for (let job of jobs) {
