@@ -75,13 +75,31 @@ describe('Sanbashi', () => {
     })
   })
   describe('.chooseJobs', () => {
+    it('returns all entries recursively', async () => {
+      const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile.worker')]
+      const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
+      let chosenJob = await Sanbashi.chooseJobs(jobs, true)
+      expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
+      expect(chosenJob[1]).to.have.property('dockerfile', dockerfiles[1])
+      expect(chosenJob).to.have.property('length', 2)
+    })
+
     it('returns the entry when only one exists', async () => {
       const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web')]
       const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
-      let chosenJob = await Sanbashi.chooseJobs(jobs)
+      let chosenJob = await Sanbashi.chooseJobs(jobs, true)
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
       expect(chosenJob).to.have.property('length', 1)
     })
+
+    it('does not fetch the data recursively', async () => {
+      const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile.worker')]
+      const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
+      let chosenJob = await Sanbashi.chooseJobs(jobs, false)
+      expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
+      expect(chosenJob).to.have.property('length', 1)
+    })
+
     afterEach(() => {
       if (Inquirer.prompt.restore)
         Inquirer.prompt.restore()

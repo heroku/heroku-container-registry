@@ -55,14 +55,11 @@ let push = async function (context, heroku) {
 
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles, context.args[0])
   let jobs = []
-  if (recurse) {
-    if (context.args.length) {
-      possibleJobs = Sanbashi.filterByProcessType(possibleJobs, context.args)
-    }
-    jobs = await Sanbashi.chooseJobs(possibleJobs)
-  } else if (possibleJobs.web) {
-    jobs = possibleJobs.web || []
+
+  if (context.args.length) {
+    possibleJobs = Sanbashi.filterByProcessType(possibleJobs, context.args)
   }
+  jobs = await Sanbashi.chooseJobs(possibleJobs, recurse)
   if (!jobs.length) {
     cli.warn('No images to push')
     process.exit(1)
