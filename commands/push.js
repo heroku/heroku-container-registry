@@ -53,7 +53,7 @@ let push = async function (context, heroku) {
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), recurse)
 
-  let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles)
+  let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles, context.args[0])
   let jobs = []
   if (recurse) {
     if (context.args.length) {
@@ -61,7 +61,6 @@ let push = async function (context, heroku) {
     }
     jobs = await Sanbashi.chooseJobs(possibleJobs)
   } else if (possibleJobs.web) {
-    possibleJobs.web.forEach((pj) => { pj.resource = pj.resource.replace(/web$/, context.args[0])})
     jobs = possibleJobs.web || []
   }
   if (!jobs.length) {
