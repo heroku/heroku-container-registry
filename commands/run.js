@@ -45,7 +45,7 @@ let run = async function (context, heroku) {
   let registry = `registry.${ herokuHost }`
   let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), false)
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles)
-  let jobs = await Sanbashi.chooseJobs(possibleJobs, false)
+  let jobs = await Sanbashi.chooseJobs(possibleJobs)
 
   if (!jobs.length) {
     cli.warn('No images to run')
