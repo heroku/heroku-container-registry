@@ -52,26 +52,26 @@ describe('Sanbashi', () => {
       const dockerfiles = [
         Path.join('.', 'Nested', 'Dockerfile.worker'),
         Path.join('.', 'Dockerfile.web'),
-        Path.join('.', 'Nested', 'Dockerfile')
+        Path.join('.', 'Nested', 'Dockerfile.web')
       ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, dockerfiles)
       expect(results.web).to.have.property('length', 2)
       expect(results.web[0]).to.have.property('dockerfile', 'Dockerfile.web')
-      expect(results.web[1]).to.have.property('dockerfile', 'Nested/Dockerfile')
+      expect(results.web[1]).to.have.property('dockerfile', 'Nested/Dockerfile.web')
       expect(results.worker[0]).to.have.property('dockerfile', 'Nested/Dockerfile.worker')
     })
     it('groups the jobs by process type', () => {
       const dockerfiles = [
         Path.join('.', 'Nested', 'Dockerfile.worker'),
         Path.join('.', 'Dockerfile.web'),
-        Path.join('.', 'Nested', 'Dockerfile')
+        Path.join('.', 'Nested', 'Dockerfile.web'),
       ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, dockerfiles)
       expect(results).to.have.keys('worker', 'web')
       expect(results['worker'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Nested', 'Dockerfile.worker')])
-      expect(results['web'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile')])
+      expect(results['web'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile.web')])
     })
   })
   describe('.chooseJobs', () => {
