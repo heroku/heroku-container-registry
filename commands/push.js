@@ -4,6 +4,7 @@ const Sanbashi = require('../lib/sanbashi')
 let usage = `
     ${ cli.color.bold.underline.magenta('Usage:')}
     ${ cli.color.cmd('heroku container:push web')}                          # Pushes Dockerfile to web process type
+    ${ cli.color.cmd('heroku container:push worker')}                       # Pushes Dockerfile to worker process type
     ${ cli.color.cmd('heroku container:push web worker --recursive')}       # Pushes Dockerfile.web and Dockerfile.worker
     ${ cli.color.cmd('heroku container:push --recursive')}                  # Pushes Dockerfile.*
     ${ cli.color.cmd('heroku container:push web --arg ENV=live,HTTPS=on')}  # Build-time variables`
@@ -59,7 +60,7 @@ let push = async function (context, heroku) {
   if (context.args.length) {
     possibleJobs = Sanbashi.filterByProcessType(possibleJobs, context.args)
   }
-  jobs = await Sanbashi.chooseJobs(possibleJobs, recurse)
+  jobs = await Sanbashi.chooseJobs(possibleJobs, recurse ? false : context.args[0])
   if (!jobs.length) {
     cli.warn('No images to push')
     process.exit(1)

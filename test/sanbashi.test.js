@@ -52,33 +52,51 @@ describe('Sanbashi', () => {
       const dockerfiles = [
         Path.join('.', 'Nested', 'Dockerfile.worker'),
         Path.join('.', 'Dockerfile.web'),
-        Path.join('.', 'Nested', 'Dockerfile')
+        Path.join('.', 'Nested', 'Dockerfile.web')
       ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, dockerfiles)
       expect(results.web).to.have.property('length', 2)
       expect(results.web[0]).to.have.property('dockerfile', 'Dockerfile.web')
-      expect(results.web[1]).to.have.property('dockerfile', 'Nested/Dockerfile')
+      expect(results.web[1]).to.have.property('dockerfile', 'Nested/Dockerfile.web')
       expect(results.worker[0]).to.have.property('dockerfile', 'Nested/Dockerfile.worker')
+    })
+    it('uses given process type', () => {
+      const dockerfiles = [
+        Path.join('.', 'Nested', 'Dockerfile')
+      ]
+      const resourceRoot = 'rootfulroot'
+      const results = Sanbashi.getJobs(resourceRoot, dockerfiles, 'worker')
+      expect(results.worker).to.have.property('length', 1)
+      expect(results.worker[0]).to.have.property('dockerfile', 'Nested/Dockerfile')
+    })
+    it('fallbacks to the "web" process type', () => {
+      const dockerfiles = [
+        Path.join('.', 'Nested', 'Dockerfile')
+      ]
+      const resourceRoot = 'rootfulroot'
+      const results = Sanbashi.getJobs(resourceRoot, dockerfiles)
+      expect(results.web).to.have.property('length', 1)
+      expect(results.web[0]).to.have.property('dockerfile', 'Nested/Dockerfile')
     })
     it('groups the jobs by process type', () => {
       const dockerfiles = [
         Path.join('.', 'Nested', 'Dockerfile.worker'),
         Path.join('.', 'Dockerfile.web'),
-        Path.join('.', 'Nested', 'Dockerfile')
+        Path.join('.', 'Nested', 'Dockerfile.web'),
       ]
       const resourceRoot = 'rootfulroot'
       const results = Sanbashi.getJobs(resourceRoot, dockerfiles)
       expect(results).to.have.keys('worker', 'web')
       expect(results['worker'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Nested', 'Dockerfile.worker')])
-      expect(results['web'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile')])
+      expect(results['web'].map(j => j.dockerfile)).to.have.members([Path.join('.', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile.web')])
     })
   })
   describe('.chooseJobs', () => {
     it('returns all entries recursively', async () => {
       const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile.worker')]
       const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
-      let chosenJob = await Sanbashi.chooseJobs(jobs, true)
+      let chosenJob = await Sanbashi.chooseJobs(jobs)
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
       expect(chosenJob[1]).to.have.property('dockerfile', dockerfiles[1])
       expect(chosenJob).to.have.property('length', 2)
@@ -87,15 +105,15 @@ describe('Sanbashi', () => {
     it('returns the entry when only one exists', async () => {
       const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web')]
       const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
-      let chosenJob = await Sanbashi.chooseJobs(jobs, true)
+      let chosenJob = await Sanbashi.chooseJobs(jobs)
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
       expect(chosenJob).to.have.property('length', 1)
     })
 
-    it('does not fetch the data recursively', async () => {
+    it('returns only entries of given type', async () => {
       const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.web'), Path.join('.', 'Nested', 'Dockerfile.worker')]
       const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
-      let chosenJob = await Sanbashi.chooseJobs(jobs, false)
+      let chosenJob = await Sanbashi.chooseJobs(jobs, 'web')
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
       expect(chosenJob).to.have.property('length', 1)
     })
