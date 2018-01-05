@@ -43,7 +43,7 @@ let run = async function (context, heroku) {
 
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'
   let registry = `registry.${ herokuHost }`
-  let dockerfiles = Sanbashi.getDockerfiles(process.cwd(), false)
+  let dockerfiles = Sanbashi.getDockerfiles(process.cwd())
   let possibleJobs = Sanbashi.getJobs(`${ registry }/${ context.app }`, dockerfiles)
   let jobs = await Sanbashi.chooseJobs(possibleJobs, false)
 
