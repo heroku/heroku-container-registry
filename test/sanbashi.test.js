@@ -8,18 +8,13 @@ describe('Sanbashi', () => {
   describe('.getDockerfiles', () => {
     it('can recurse the directory', () => {
       const searchpath = Path.join(process.cwd(), './test/fixtures')
-      let results = Sanbashi.getDockerfiles(searchpath, true)
+      let results = Sanbashi.getDockerfiles(searchpath)
       expect(results).to.have.members([`${searchpath}/Dockerfile.web`, `${searchpath}/Nested/Dockerfile.web`])
     })
-    it('when recursing, rejects dockerfiles that have no postfix in the name', () => {
+    it('rejects dockerfiles that have no postfix in the name', () => {
       const searchpath = Path.join(process.cwd(), './test/fixtures')
-      let results = Sanbashi.getDockerfiles(searchpath, true)
+      let results = Sanbashi.getDockerfiles(searchpath)
       expect(results).to.not.have.members([`${searchpath}/Dockerfile`])
-    })
-    it('returns only regular Dockerfiles when not recursing', () => {
-      const searchpath = Path.join(process.cwd(), './test/fixtures/Nested')
-      let results = Sanbashi.getDockerfiles(searchpath, false)
-      expect(results).to.have.members([`${searchpath}/Dockerfile`])
     })
   })
   describe('.filterByProcessType', () => {
@@ -97,6 +92,16 @@ describe('Sanbashi', () => {
       const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
       let chosenJob = await Sanbashi.chooseJobs(jobs, false)
       expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
+      expect(chosenJob[0].name).to.equal('web')
+      expect(chosenJob).to.have.property('length', 1)
+    })
+
+    it('fetches a non-web process non-recursively', async () => {
+      const dockerfiles = [Path.join('.', 'Nested', 'Dockerfile.worker')]
+      const jobs = Sanbashi.getJobs('rootfulroot', dockerfiles)
+      let chosenJob = await Sanbashi.chooseJobs(jobs, false)
+      expect(chosenJob[0]).to.have.property('dockerfile', dockerfiles[0])
+      expect(chosenJob[0].name).to.equal('worker')
       expect(chosenJob).to.have.property('length', 1)
     })
 
