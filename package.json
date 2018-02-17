@@ -46,7 +46,7 @@
     "env": "mocha"
   },
   "topic": "container",
-  "oclif": {
+  "cli-engine": {
     "topics": {
       "container": {
         "description": "Use containers to build and deploy Heroku apps"
