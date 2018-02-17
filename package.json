@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.2.16",
-    "@oclif/plugin-legacy": "^1.0.2",
+    "@oclif/plugin-legacy": "^1.0.4",
     "chai": "3.2.0",
     "depcheck": "0.4.7",
     "mocha": "2.2.4",
@@ -45,5 +45,12 @@
   "standard": {
     "env": "mocha"
   },
-  "topic": "container"
+  "topic": "container",
+  "oclif": {
+    "topics": {
+      "container": {
+        "description": "Use containers to build and deploy Heroku apps"
+      }
+    }
+  }
 }
