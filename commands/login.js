@@ -21,6 +21,7 @@ async function login (context, heroku) {
   let herokuHost = process.env.HEROKU_HOST || 'heroku.com'
   let registry = `registry.${herokuHost}`
   let password = context.auth.password
+  if (!password) throw new Error('not logged in')
 
   try {
     await dockerLogin(registry, password)
