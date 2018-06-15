@@ -89,7 +89,6 @@ let push = async function (context, heroku) {
       } else {
         cli.styledHeader(`Building ${job.name} (${job.dockerfile})`)
       }
-      console.error('Build: ', buildArg, context.flags.path)
       await Sanbashi.buildImage(job.dockerfile, job.resource, buildArg, context.flags.path)
     }
   } catch (err) {
