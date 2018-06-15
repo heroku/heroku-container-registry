@@ -110,6 +110,16 @@ describe('Sanbashi', () => {
       Sinon.assert.calledWith(cmd, 'docker', dockerArg)
     })
 
+    it('set build path', () => {
+      let buildArg = ['']
+      let buildPath = 'build/context'
+      let cmd = Sinon.stub(Sanbashi, 'cmd')
+      let expectedPath = Path.join(path, buildPath)
+      Sanbashi.buildImage(dockerfile, resource, buildArg, buildPath)
+      let dockerArg = ['build', '-f', dockerfile, '-t', 'web', expectedPath]
+      Sinon.assert.calledWith(cmd, 'docker', dockerArg)
+    })
+
     afterEach(() => {
       Sanbashi.cmd.restore() // Unwraps the spy
     })
